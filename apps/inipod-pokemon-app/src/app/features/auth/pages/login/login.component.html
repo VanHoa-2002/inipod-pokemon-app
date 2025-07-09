@@ -1,0 +1,67 @@
+<div class="min-h-screen flex bg-[#f2f3f8] p-4">
+  <div
+    class="flex flex-col md:flex-row bg-white rounded-2xl shadow-lg overflow-hidden w-full"
+  >
+    <!-- Left side (Image) -->
+    <div class="md:w-1/2 bg-[#eadcff] p-6">
+      <img
+        src="assets/login-bg.jpg"
+        alt="login-bg"
+        class="rounded-xl w-full h-full object-cover"
+      />
+    </div>
+
+    <!-- Right side (Form) -->
+    <div class="md:w-1/2 p-8">
+      <div class="text-right text-sm mb-2">
+        Not a member?
+        <a
+          routerLink="/auth/signup"
+          class="text-blue-600 cursor-pointer hover:underline"
+          >Register now</a
+        >
+      </div>
+
+      <div class="flex flex-col items-center justify-center h-full">
+        <h2 class="text-3xl font-bold text-gray-800 mb-1">Hello Again!</h2>
+        <p class="text-sm text-gray-500 mb-6">
+          Welcome back you’ve been missed!
+        </p>
+        <form
+          (ngSubmit)="onLogin()"
+          #f="ngForm"
+          class="space-y-4 w-full max-w-[600px] mx-auto"
+        >
+          <input
+            type="text"
+            [(ngModel)]="username"
+            name="username"
+            placeholder="Enter username"
+            required
+            class="w-full bg-blue-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <input
+            type="password"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="Password"
+            required
+            class="w-full bg-blue-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <div
+            class="text-sm text-right text-blue-500 cursor-pointer"
+            routerLink="/auth/recovery-password"
+          >
+            Recovery Password
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 font-semibold transition"
+          >
+            Sign In
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

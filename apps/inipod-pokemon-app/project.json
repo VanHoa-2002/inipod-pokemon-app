@@ -19,6 +19,11 @@
           {
             "glob": "**/*",
             "input": "apps/inipod-pokemon-app/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "apps/inipod-pokemon-app/src/assets",
+            "output": "assets"
           }
         ],
         "styles": ["apps/inipod-pokemon-app/src/styles.scss"],
@@ -60,7 +65,8 @@
           "buildTarget": "inipod-pokemon-app:build:production"
         },
         "development": {
-          "buildTarget": "inipod-pokemon-app:build:development"
+          "buildTarget": "inipod-pokemon-app:build:development",
+          "proxyConfig": "apps/web/proxy.conf.json"
         }
       },
       "defaultConfiguration": "development"
