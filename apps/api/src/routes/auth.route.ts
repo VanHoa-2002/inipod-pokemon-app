@@ -4,7 +4,10 @@ import { AuthService } from '../services/auth.service';
 
 const router = express.Router();
 const authService = new AuthService();
-
+/**
+ * @route POST /api/auth/signup
+ * @desc Sign up a new user
+ */
 router.post('/signup', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -15,6 +18,10 @@ router.post('/signup', async (req, res) => {
   }
 });
 
+/**
+ * @route POST /api/auth/login
+ * @desc Login a user
+ */
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;

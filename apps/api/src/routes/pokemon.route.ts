@@ -71,12 +71,16 @@ router.get('/', async (req, res) => {
   } = req.query;
 
   const filter: any = {};
+
+  const isValid = (value) =>
+    value !== undefined && value !== null && value !== 'null';
+
   if (name) filter.name = { $regex: name, $options: 'i' };
   if (type) filter.$or = [{ type1: type }, { type2: type }];
-  if (isLegendary !== undefined) filter.isLegendary = isLegendary === 'true';
-  if (minSpeed)
+  if (isLegendary === 'true') filter.isLegendary = true;
+  if (isValid(minSpeed))
     filter.speed = { ...(filter.speed || {}), $gte: Number(minSpeed) };
-  if (maxSpeed)
+  if (isValid(maxSpeed))
     filter.speed = { ...(filter.speed || {}), $lte: Number(maxSpeed) };
 
   const pokemons = await PokemonModel.find(filter)
@@ -86,6 +90,16 @@ router.get('/', async (req, res) => {
   const total = await PokemonModel.countDocuments(filter);
 
   res.json({ total, page: +page, limit: +limit, data: pokemons });
+});
+/**
+ * @route GET /api/pokemon/types
+ * @desc Get Pokémon types
+ */
+router.get('/types', async (req, res) => {
+  const type1List = await PokemonModel.distinct('type1');
+  const type2List = await PokemonModel.distinct('type2');
+  const uniqueTypes = Array.from(new Set([...type1List, ...type2List])).sort();
+  res.json(uniqueTypes);
 });
 
 /**
@@ -97,4 +111,5 @@ router.get('/:id', async (req, res) => {
   if (!pokemon) return res.status(404).json({ error: 'Not found' });
   res.json(pokemon);
 });
+
 export default router;
