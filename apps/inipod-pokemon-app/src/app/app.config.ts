@@ -28,6 +28,7 @@ export const appConfig: ApplicationConfig = {
       preventDuplicates: true,
       closeButton: true,
       progressBar: true,
+      timeOut: 2000,
     }),
     provideAnimations(),
   ],

@@ -27,38 +27,114 @@
         </p>
 
         <form
+          #formSignup="ngForm"
           (ngSubmit)="onSignup()"
-          #f="ngForm"
           class="space-y-4 w-full max-w-[600px] mx-auto"
         >
+          <!-- Email input -->
+          <input
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            placeholder="Enter your email"
+            required
+            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+            #emailRef="ngModel"
+            class="w-full bg-blue-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            [ngClass]="{
+              'border-red-500': emailRef.invalid && emailRef.touched,
+            }"
+          />
+          <div
+            *ngIf="emailRef.touched && emailRef.errors"
+            class="text-sm text-red-500"
+          >
+            <div *ngIf="emailRef.errors?.['required']">Email is required</div>
+            <div *ngIf="emailRef.errors?.['pattern']">Invalid email format</div>
+          </div>
+          <!-- Username input -->
           <input
             type="text"
-            [(ngModel)]="username"
             name="username"
+            [(ngModel)]="username"
+            required
+            #usernameRef="ngModel"
             placeholder="Enter username"
-            required
             class="w-full bg-blue-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            [ngClass]="{
+              'border-red-500': usernameRef.invalid && usernameRef.touched,
+            }"
+            pattern="^[a-zA-Z][a-zA-Z0-9]*$"
           />
-          <input
-            type="password"
-            [(ngModel)]="password"
-            name="password"
-            placeholder="Password"
-            required
-            class="w-full bg-blue-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <input
-            type="password"
-            [(ngModel)]="confirmPassword"
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            required
-            class="w-full bg-blue-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
+          <div
+            *ngIf="usernameRef.invalid && usernameRef.touched"
+            class="text-sm text-red-500"
+          >
+            <div *ngIf="usernameRef.errors?.['required']">
+              Username is required
+            </div>
+            <div *ngIf="usernameRef.errors?.['pattern']">
+              Only letters or letters and numbers allowed
+            </div>
+          </div>
 
+          <!-- Password input -->
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            required
+            minlength="6"
+            #passwordRef="ngModel"
+            placeholder="Password"
+            class="w-full bg-blue-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            [ngClass]="{
+              'border-red-500': passwordRef.invalid && passwordRef.touched,
+            }"
+          />
+          <div
+            *ngIf="passwordRef.touched && passwordRef.errors"
+            class="text-sm text-red-500"
+          >
+            <div *ngIf="passwordRef.errors['required']">
+              Password is required
+            </div>
+            <div *ngIf="passwordRef.errors['minlength']">
+              Minimum 6 characters
+            </div>
+          </div>
+
+          <!-- Confirm Password input -->
+          <input
+            type="password"
+            name="confirmPassword"
+            [(ngModel)]="confirmPassword"
+            required
+            #confirmPasswordRef="ngModel"
+            placeholder="Confirm Password"
+            class="w-full bg-blue-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            [ngClass]="{
+              'border-red-500': confirmPasswordRef.invalid && confirmPasswordRef.touched,
+            }"
+          />
+          <div
+            *ngIf="confirmPasswordRef.touched && confirmPasswordRef.invalid"
+            class="text-sm text-red-500"
+          >
+            Confirm Password is required
+          </div>
+          <div
+            *ngIf="confirmPasswordRef.touched && password !== confirmPassword"
+            class="text-sm text-red-500"
+          >
+            Passwords do not match
+          </div>
+
+          <!-- Submit button -->
           <button
             type="submit"
-            class="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 font-semibold transition"
+            [disabled]="formSignup.invalid || password !== confirmPassword"
+            class="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Sign Up
           </button>

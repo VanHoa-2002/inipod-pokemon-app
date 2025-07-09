@@ -6,9 +6,15 @@ import { tap } from 'rxjs';
 export class AuthService {
   private http = inject(HttpClient);
 
-  login(username: string, password: string) {
+  login(email: string, password: string) {
     return this.http
-      .post<{ accessToken: string }>('/api/auth/login', { username, password })
+      .post<{ accessToken: string; userId: string; username: string }>(
+        '/api/auth/login',
+        {
+          email,
+          password,
+        }
+      )
       .pipe(
         tap((res) => {
           if (typeof window !== 'undefined') {
@@ -18,12 +24,18 @@ export class AuthService {
       );
   }
 
-  signup(username: string, password: string) {
-    return this.http.post('/api/auth/signup', { username, password });
+  signup(username: string, password: string, email: string) {
+    return this.http.post('/api/auth/signup', {
+      username,
+      password,
+      email,
+    });
   }
 
   recoveryPassword(email: string) {
-    return this.http.post('/api/auth/recovery-password', { email });
+    return this.http.post<{ message: string }>('/api/auth/recovery-password', {
+      email,
+    });
   }
 
   logout() {

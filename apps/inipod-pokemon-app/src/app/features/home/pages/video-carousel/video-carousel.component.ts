@@ -16,6 +16,9 @@ export class VideoCarouselComponent implements OnInit {
   private sanitizer = inject(DomSanitizer);
   private pokemonService = inject(PokemonService);
   ngOnInit(): void {
+    this.loadVideoData();
+  }
+  loadVideoData() {
     this.pokemonService
       .getPokemons({
         page: 1,
@@ -23,7 +26,15 @@ export class VideoCarouselComponent implements OnInit {
       })
       .subscribe((res) => {
         this.pokemonsWithVideo = res.data;
+        if (!this.pokemonsWithVideo.length) {
+          this.listenImportSuccess();
+        }
       });
+  }
+  listenImportSuccess() {
+    this.pokemonService.importSuccess$.subscribe(() => {
+      this.loadVideoData(); // reload lại video
+    });
   }
   getSafeUrl(url: string, index: number): SafeResourceUrl {
     const id = this.extractVideoId(url);

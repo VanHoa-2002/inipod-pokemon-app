@@ -29,34 +29,69 @@
         </p>
         <form
           (ngSubmit)="onLogin()"
-          #f="ngForm"
+          #formLogin="ngForm"
           class="space-y-4 w-full max-w-[600px] mx-auto"
         >
+          <!-- Email input -->
           <input
-            type="text"
-            [(ngModel)]="username"
-            name="username"
-            placeholder="Enter username"
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="Enter email"
             required
+            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+            #emailRef="ngModel"
             class="w-full bg-blue-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            [ngClass]="{
+              'border-red-500': emailRef.invalid && emailRef.touched,
+            }"
           />
+          <div
+            *ngIf="emailRef.touched && emailRef.errors"
+            class="text-sm text-red-500"
+          >
+            <div *ngIf="emailRef.errors['required']">Email is required</div>
+            <div *ngIf="emailRef.errors['pattern']">Invalid email format</div>
+          </div>
+          <!-- Password input -->
           <input
             type="password"
             [(ngModel)]="password"
             name="password"
             placeholder="Password"
             required
+            minlength="6"
+            #passwordRef="ngModel"
             class="w-full bg-blue-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            [ngClass]="{
+              'border-red-500': passwordRef.invalid && passwordRef.touched,
+            }"
           />
           <div
-            class="text-sm text-right text-blue-500 cursor-pointer"
+            *ngIf="passwordRef.touched && passwordRef.errors"
+            class="text-sm text-red-500"
+          >
+            <div *ngIf="passwordRef.errors['required']">
+              Password is required
+            </div>
+            <div *ngIf="passwordRef.errors['minlength']">
+              Password must be at least 6 characters
+            </div>
+          </div>
+
+          <!-- Recovery Password link -->
+          <div
+            class="text-sm text-right text-blue-500 cursor-pointer w-fit float-right"
             routerLink="/auth/recovery-password"
           >
             Recovery Password
           </div>
+
+          <!-- Submit button -->
           <button
             type="submit"
-            class="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 font-semibold transition"
+            [disabled]="formLogin.invalid"
+            class="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Sign In
           </button>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   standalone: true,
@@ -14,23 +15,19 @@ export class SignupComponent {
   username = '';
   password = '';
   confirmPassword = '';
+  email = '';
 
   private auth = inject(AuthService);
   private router = inject(Router);
-
+  private toastr = inject(ToastrService);
   onSignup() {
-    if (this.password !== this.confirmPassword) {
-      alert('Password not match!');
-      return;
-    }
-
-    this.auth.signup(this.username, this.password).subscribe({
+    this.auth.signup(this.username, this.password, this.email).subscribe({
       next: () => {
-        alert('Signup success!');
+        this.toastr.success('Signup successfully!', 'Success');
         this.router.navigate(['/auth/login']);
       },
       error: (err) => {
-        alert(err.error?.error || 'Signup failed');
+        this.toastr.error(err.error?.error || 'Signup failed', 'Error');
       },
     });
   }

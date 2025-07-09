@@ -3,6 +3,7 @@ import multer from 'multer';
 import csv from 'csv-parser';
 import fs from 'fs';
 import { PokemonModel } from '../models/pokemon.model';
+import { FavoriteModel } from '../models/favorite.model';
 
 const router = express.Router();
 const upload = multer({ dest: 'tmp/' });
@@ -43,8 +44,26 @@ router.post('/import', upload.single('file'), async (req, res) => {
     })
     .on('end', async () => {
       try {
-        await PokemonModel.insertMany(results);
-        res.json({ message: 'Imported successfully', count: results.length });
+        const existingIds = await PokemonModel.find(
+          { id: { $in: results.map((r) => r.id) } },
+          { id: 1 }
+        ).lean();
+
+        const existingIdSet = new Set(existingIds.map((p) => p.id));
+        const newPokemons = results.filter((p) => !existingIdSet.has(p.id));
+
+        if (newPokemons.length === 0) {
+          return res
+            .status(409)
+            .json({ message: 'All Pokémon in the file already exist.' });
+        }
+
+        await PokemonModel.insertMany(newPokemons);
+        res.json({
+          message: `Imported successfully ${newPokemons.length} Pokémon(s).`,
+          count: newPokemons.length,
+          skipped: existingIds.length,
+        });
       } catch (error) {
         res
           .status(500)
@@ -100,6 +119,58 @@ router.get('/types', async (req, res) => {
   const type2List = await PokemonModel.distinct('type2');
   const uniqueTypes = Array.from(new Set([...type1List, ...type2List])).sort();
   res.json(uniqueTypes);
+});
+
+/**
+ * @route GET /api/pokemon/favorites
+ * @desc Get Pokémon favorites
+ */
+router.get('/favorites', async (req, res) => {
+  const { userId } = req.query;
+
+  if (!userId) return res.status(400).json({ message: 'Missing userId' });
+
+  const favorites = await FavoriteModel.find({ userId }).populate('pokemonId');
+  const pokemonList = favorites.map((fav) => fav.pokemonId).filter(Boolean);
+
+  res.json({ data: pokemonList });
+});
+
+/**
+ * @route POST /api/pokemon/favorites
+ * @desc Add Pokémon to favorites
+ */
+router.post('/favorites', async (req, res) => {
+  const { userId, pokemonId } = req.body;
+
+  try {
+    const result = await FavoriteModel.updateOne(
+      { userId, pokemonId },
+      { $setOnInsert: { userId, pokemonId } },
+      { upsert: true }
+    );
+
+    const isInserted = result.upsertedCount > 0;
+
+    return res.json({
+      message: isInserted ? 'Added to favorites' : 'Already favorited',
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+/**
+ * @route DELETE /api/pokemon/favorites
+ * @desc Remove Pokémon from favorites
+ */
+router.delete('/favorites', async (req, res) => {
+  const { userId, pokemonId } = req.body;
+
+  await FavoriteModel.deleteOne({ userId, pokemonId });
+
+  res.json({ message: 'Removed from favorites' });
 });
 
 /**
