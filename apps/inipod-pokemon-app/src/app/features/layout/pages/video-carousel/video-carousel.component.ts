@@ -15,9 +15,17 @@ export class VideoCarouselComponent implements OnInit {
   currentIndex = 0;
   private sanitizer = inject(DomSanitizer);
   private pokemonService = inject(PokemonService);
+
+  /**
+   * Initialize the component
+   */
   ngOnInit(): void {
     this.loadVideoData();
   }
+
+  /**
+   * Load the video data
+   */
   loadVideoData() {
     this.pokemonService
       .getPokemons({
@@ -26,16 +34,15 @@ export class VideoCarouselComponent implements OnInit {
       })
       .subscribe((res) => {
         this.pokemonsWithVideo = res.data;
-        if (!this.pokemonsWithVideo.length) {
-          this.listenImportSuccess();
-        }
       });
   }
-  listenImportSuccess() {
-    this.pokemonService.importSuccess$.subscribe(() => {
-      this.loadVideoData(); // reload lại video
-    });
-  }
+
+  /**
+   * Get the safe URL
+   * @param url - The URL
+   * @param index - The index
+   * @returns - The safe URL
+   */
   getSafeUrl(url: string, index: number): SafeResourceUrl {
     const id = this.extractVideoId(url);
     const autoplay = index === this.currentIndex ? 'autoplay=1' : 'autoplay=0';
@@ -44,11 +51,20 @@ export class VideoCarouselComponent implements OnInit {
     );
   }
 
+  /**
+   * Extract the video ID
+   * @param url - The URL
+   * @returns - The video ID
+   */
   extractVideoId(url: string): string {
     const match = url.match(/(?:youtu\.be\/|watch\?v=|embed\/)([\w-]{11})/);
     return match?.[1] || '';
   }
 
+  /**
+   * Get the translate X
+   * @returns - The translate X
+   */
   getTranslateX() {
     const itemWidth = 100;
     const gapSize = 16;
@@ -57,16 +73,26 @@ export class VideoCarouselComponent implements OnInit {
     return `translateX(-${offset}%)`;
   }
 
+  /**
+   * Get the container width
+   * @returns - The container width
+   */
   getContainerWidth() {
     return (
       document.querySelector('.relative')?.getBoundingClientRect().width || 1
     );
   }
 
+  /**
+   * Next slide
+   */
   nextSlide() {
     this.currentIndex = (this.currentIndex + 1) % this.pokemonsWithVideo.length;
   }
 
+  /**
+   * Previous slide
+   */
   prevSlide() {
     this.currentIndex =
       (this.currentIndex - 1 + this.pokemonsWithVideo.length) %

@@ -1,19 +1,24 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   HttpInterceptor,
   HttpRequest,
   HttpHandler,
   HttpEvent,
+  HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({ providedIn: 'root' })
 export class AuthInterceptor implements HttpInterceptor {
+  private router = inject(Router);
+  private toastr = inject(ToastrService);
   intercept(
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    if (typeof window === 'undefined') return next.handle(req); // SSR-safe
+    if (typeof window === 'undefined') return next.handle(req);
 
     const token = localStorage.getItem('token');
     const isAuth =
@@ -27,6 +32,15 @@ export class AuthInterceptor implements HttpInterceptor {
       },
     });
 
-    return next.handle(authReq);
+    return next.handle(authReq).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          localStorage.removeItem('token');
+          this.toastr.error('Login expired, please login again');
+          this.router.navigate(['auth/login']);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 }

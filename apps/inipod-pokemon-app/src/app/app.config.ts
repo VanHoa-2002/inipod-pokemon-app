@@ -1,6 +1,6 @@
 import {
+  HTTP_INTERCEPTORS,
   provideHttpClient,
-  withFetch,
   withInterceptorsFromDi,
 } from '@angular/common/http';
 import {
@@ -16,6 +16,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { provideToastr } from 'ngx-toastr';
 import { appRoutes } from './app.routes';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,7 +24,12 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
-    provideHttpClient(withInterceptorsFromDi(), withFetch()),
+    provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
     provideToastr({
       preventDuplicates: true,
       closeButton: true,

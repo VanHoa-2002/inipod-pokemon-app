@@ -39,12 +39,12 @@
             name="email"
             placeholder="Enter email"
             required
-            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+            pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$"
             #emailRef="ngModel"
             class="w-full bg-blue-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            [ngClass]="{
-              'border-red-500': emailRef.invalid && emailRef.touched,
-            }"
+            [ngClass]="{ 'border-red-500': emailRef.invalid
+          && emailRef.touched, }"
+            autocomplete="email"
           />
           <div
             *ngIf="emailRef.touched && emailRef.errors"
@@ -66,6 +66,7 @@
             [ngClass]="{
               'border-red-500': passwordRef.invalid && passwordRef.touched,
             }"
+            autocomplete="current-password"
           />
           <div
             *ngIf="passwordRef.touched && passwordRef.errors"

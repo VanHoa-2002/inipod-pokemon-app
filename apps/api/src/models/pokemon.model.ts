@@ -5,7 +5,7 @@ const pokemonSchema = new Schema(
     id: { type: Number, required: true },
     name: { type: String, required: true },
     type1: { type: String, required: true },
-    type2: { type: String, required: false, default: null }, // ✅ cho phép null
+    type2: { type: String, required: false, default: null },
     total: { type: Number },
     hp: { type: Number },
     attack: { type: Number },

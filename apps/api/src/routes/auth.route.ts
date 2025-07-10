@@ -1,4 +1,3 @@
-// apps/api/src/app/routes/auth.route.ts
 import express from 'express';
 import { AuthService } from '../services/auth.service';
 import { UserModel } from '../models/user.model';

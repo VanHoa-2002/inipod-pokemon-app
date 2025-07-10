@@ -1,6 +1,6 @@
 import { Route } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
-import { LayoutComponent } from './features/home/pages/layout/layout.component';
+import { LayoutComponent } from './features/layout/layout.component';
 
 export const appRoutes: Route[] = [
   {
@@ -30,18 +30,40 @@ export const appRoutes: Route[] = [
     canActivate: [AuthGuard],
     children: [
       {
+        path: '',
+        loadComponent: () =>
+          import('./features/layout/pages/home-page/home-page.component').then(
+            (m) => m.HomePageComponent
+          ),
+      },
+      {
         path: 'pokemon',
         loadComponent: () =>
           import(
-            './features/home/pages/pokemon-list/pokemon-list.component'
+            './features/layout/pages/pokemon-list/pokemon-list.component'
           ).then((m) => m.PokemonListComponent),
+      },
+      {
+        path: 'documentary',
+        loadComponent: () =>
+          import(
+            './features/layout/pages/documentary/documentary.component'
+          ).then((m) => m.DocumentaryComponent),
+      },
+      {
+        path: 'policy',
+        loadComponent: () =>
+          import('./features/layout/pages/policy/policy.component').then(
+            (m) => m.PolicyComponent
+          ),
       },
     ],
   },
-
   {
-    path: '',
-    redirectTo: 'auth/login',
-    pathMatch: 'full',
+    path: '**',
+    loadComponent: () =>
+      import('./features/layout/pages/not-found/not-found.component').then(
+        (m) => m.NotFoundComponent
+      ),
   },
 ];

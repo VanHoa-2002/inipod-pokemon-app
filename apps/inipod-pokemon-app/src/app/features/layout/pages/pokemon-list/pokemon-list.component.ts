@@ -1,28 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { debounceTime, map, Observable, of, Subject, tap } from 'rxjs';
+import { debounceTime, Observable, of, Subject, tap } from 'rxjs';
 import { PokemonService } from '../../../../core/services/pokemon.service';
 import { PayloadFilter, Pokemon } from '../../../models/pokemon-list.model';
-import { VideoCarouselComponent } from '../video-carousel/video-carousel.component';
-import { SafeYoutubePipe } from '../../../utils/safe-youtube.pipe';
+import { CardItemComponent } from '../card-item/card-item.component';
 
 @Component({
   selector: 'app-pokemon-list',
   templateUrl: './pokemon-list.component.html',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    VideoCarouselComponent,
-    SafeYoutubePipe,
-  ],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, CardItemComponent],
   providers: [ToastrService],
 })
-export class PokemonListComponent implements OnInit, OnDestroy {
+export class PokemonListComponent implements OnInit {
   pokemons: Pokemon[] = [];
   searchSubject = new Subject<string>();
   payloadFilter: PayloadFilter = {
@@ -44,21 +37,11 @@ export class PokemonListComponent implements OnInit, OnDestroy {
   loading = false;
   userId = localStorage.getItem('userId') ?? '';
   isFirstLoad = true;
-  isHaveData = false;
+
+  /**
+   * Initialize the component
+   */
   ngOnInit(): void {
-    document.addEventListener('keydown', this.handleEscape);
-    if (this.userId) {
-      this.pokemonService
-        .getFavorites(this.userId)
-        .pipe(
-          map((res) => {
-            if (res?.data?.length > 0) {
-              this.favoriteIds = new Set(res.data.map((p) => p._id));
-            }
-          })
-        )
-        .subscribe();
-    }
     this.route.queryParams.subscribe((params) => {
       this.payloadFilter = {
         name: params['name'] || '',
@@ -81,38 +64,33 @@ export class PokemonListComponent implements OnInit, OnDestroy {
     this.pokemonTypes$ = this.pokemonService.getTypes();
   }
 
+  /**
+   * On search
+   * @param value - The value
+   */
   onSearch(value: string) {
     this.searchSubject.next(value);
   }
 
+  /**
+   * On filter change
+   */
   onFilterChange() {
     this.payloadFilter.page = 1;
     this.updateQueryParamsAndLoad();
   }
-  onFavoriteClick(event: MouseEvent, pokemon: Pokemon) {
-    event.stopPropagation();
-    this.toggleFavorite(pokemon);
-  }
-  toggleFavorite(pokemon: Pokemon) {
-    const id = pokemon._id;
-    if (this.favoriteIds.has(id)) {
-      this.pokemonService.removeFavorite(this.userId, id).subscribe(() => {
-        this.favoriteIds.delete(id);
-        this.toastr.info('Remove from favorite', 'Information');
-      });
-    } else {
-      this.pokemonService.addFavorite(this.userId, id).subscribe(() => {
-        this.favoriteIds.add(id);
-        this.toastr.success('Add to favorite', 'Success');
-      });
-    }
-  }
 
+  /**
+   * Update the query params and load the pokemons
+   */
   updateQueryParamsAndLoad() {
     this.updateQueryParams();
     this.loadPokemons();
   }
 
+  /**
+   * Update the query params
+   */
   updateQueryParams() {
     this.router.navigate([], {
       queryParams: this.payloadFilter,
@@ -120,6 +98,9 @@ export class PokemonListComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Load the pokemons
+   */
   loadPokemons() {
     this.loading = true;
     this.pokemonService.getPokemons(this.payloadFilter).subscribe({
@@ -141,9 +122,21 @@ export class PokemonListComponent implements OnInit, OnDestroy {
       },
     });
   }
+
+  /**
+   * Track by function
+   * @param index - The index
+   * @param item - The item
+   * @returns - The id of the item
+   */
   trackByFn(index: number, item: any) {
     return item._id;
   }
+
+  /**
+   * On page change
+   * @param newPage - The new page
+   */
   onPageChange(newPage: number) {
     if (newPage >= 1 && newPage <= this.totalPages) {
       this.payloadFilter.page = newPage;
@@ -151,12 +144,20 @@ export class PokemonListComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * On limit change
+   * @param event - The event
+   */
   onLimitChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     this.payloadFilter.limit = Number(target.value);
     this.payloadFilter.page = 1;
     this.updateQueryParamsAndLoad();
   }
+  /**
+   * Toggle the scrollbar
+   * @param isHide - The is hide
+   */
   toggleScrollbar(isHide = false) {
     const scrollbarWidth =
       window.innerWidth - document.documentElement.clientWidth;
@@ -168,6 +169,12 @@ export class PokemonListComponent implements OnInit, OnDestroy {
       document.body.style.paddingRight = '0';
     }
   }
+
+  /**
+   * On import CSV
+   * @param event - The event
+   * @param input - The input
+   */
   onImportCSV(event: Event, input: HTMLInputElement) {
     const file = (event.target as HTMLInputElement)?.files?.[0];
     if (file) {
@@ -188,47 +195,28 @@ export class PokemonListComponent implements OnInit, OnDestroy {
           input.value = '';
           this.loading = false;
           this.toggleScrollbar();
-          this.pokemonService.notifyImportSuccess();
         },
       });
     }
   }
 
+  /**
+   * Get the total pages
+   * @returns - The total pages
+   */
   get totalPages(): number {
     return Math.ceil(this.totalItems / (this.payloadFilter.limit ?? 20));
   }
 
+  /**
+   * Get the page range
+   * @returns - The page range
+   */
   get pageRange(): string {
     const page = this.payloadFilter.page ?? 1;
     const limit = this.payloadFilter.limit ?? 20;
     const start = this.totalItems > 0 ? (page - 1) * limit + 1 : 0;
     const end = Math.min(page * limit, this.totalItems);
     return `Showing ${start}-${end} of ${this.totalItems}`;
-  }
-  selectedPokemon: Pokemon | null = null;
-
-  openModal(pokemon: Pokemon) {
-    this.pokemonService
-      .getDetailPokemon(pokemon._id)
-      .pipe(
-        tap((res) => {
-          this.selectedPokemon = res;
-        })
-      )
-      .subscribe();
-    this.toggleScrollbar(true);
-  }
-
-  closeModal() {
-    this.selectedPokemon = null;
-    this.toggleScrollbar();
-  }
-  handleEscape = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      this.closeModal();
-    }
-  };
-  ngOnDestroy(): void {
-    document.removeEventListener('keydown', this.handleEscape);
   }
 }

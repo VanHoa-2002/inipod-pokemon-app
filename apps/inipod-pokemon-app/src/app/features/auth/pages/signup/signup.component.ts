@@ -20,6 +20,11 @@ export class SignupComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
   private toastr = inject(ToastrService);
+
+  /**
+   * Signup a new user
+   * @returns - The user object
+   */
   onSignup() {
     this.auth.signup(this.username, this.password, this.email).subscribe({
       next: () => {

@@ -18,6 +18,11 @@ export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
   private toastr = inject(ToastrService);
+
+  /**
+   * Login a user
+   * @returns - The user object
+   */
   onLogin() {
     this.auth.login(this.email, this.password).subscribe({
       next: (res) => {
@@ -25,7 +30,7 @@ export class LoginComponent {
         localStorage.setItem('username', res.username);
         localStorage.setItem('token', res.accessToken);
         this.toastr.success('Login successfully', 'Success');
-        this.router.navigate(['/pokemon']);
+        this.router.navigate(['/']);
       },
       error: (err) => {
         this.toastr.error(err.error?.error || 'Login failed', 'Error');

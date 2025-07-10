@@ -5,6 +5,13 @@ import { UserModel } from '../models/user.model';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret';
 
 export class AuthService {
+  /**
+   * Signup a new user
+   * @param username - The username of the user
+   * @param password - The password of the user
+   * @param email - The email of the user
+   * @returns - The user object
+   */
   async signup(username: string, password: string, email: string) {
     const existing = await UserModel.findOne({ username, email });
     if (existing) throw new Error('User already exists');
@@ -16,6 +23,12 @@ export class AuthService {
     return { id: user._id, username: user.username, email: user.email };
   }
 
+  /**
+   * Login a user
+   * @param password - The password of the user
+   * @param email - The email of the user
+   * @returns - The user object
+   */
   async login(password: string, email: string) {
     const user = await UserModel.findOne({ email });
     if (!user) throw new Error('Invalid credentials');

@@ -1,4 +1,3 @@
-// safe-youtube.pipe.ts
 import { inject, Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
@@ -9,6 +8,11 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 export class SafeYoutubePipe implements PipeTransform {
   private sanitizer = inject(DomSanitizer);
 
+  /**
+   * Transform the original URL
+   * @param originalUrl - The original URL
+   * @returns - The safe resource URL
+   */
   transform(originalUrl: string): SafeResourceUrl {
     if (!originalUrl) return '';
 

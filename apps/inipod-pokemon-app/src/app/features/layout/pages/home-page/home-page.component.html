@@ -1,0 +1,33 @@
+<div class="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+  <!-- Header section-->
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">
+      Welcome to Inipod Pokemon App!
+    </h1>
+    <p class="mt-2 text-gray-600 text-sm sm:text-base">
+      Explore and discover your favorite Pokemon!
+    </p>
+  </header>
+
+  <!-- Carousel section-->
+  <section class="mb-6">
+    <app-video-carousel class="w-full"></app-video-carousel>
+  </section>
+  <!-- Pokemon List section-->
+  <section class="bg-white rounded-lg shadow-md p-4 sm:p-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">Top 10 Pokemon List</h2>
+    <ng-container *ngIf="pokemons.length > 0">
+      <ul
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+      >
+        <app-card-item
+          *ngFor="let pokemon of pokemons; trackBy: trackByFn"
+          [pokemon]="pokemon"
+          [favoriteIds]="favoriteIds"
+          [userId]="userId"
+        >
+        </app-card-item>
+      </ul>
+    </ng-container>
+  </section>
+</div>

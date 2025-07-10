@@ -1,0 +1,108 @@
+<div class="min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-white shadow px-4 md:px-6 py-4">
+    <div class="px-4 mx-auto grid grid-cols-[auto_1fr_auto] items-center">
+      <div
+        class="hidden md:flex text-xl font-bold text-red-600 cursor-pointer"
+        routerLink="/"
+      >
+        Inipod
+      </div>
+
+      <nav class="hidden md:flex justify-center gap-6 text-sm text-gray-700">
+        @for (item of menuItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="text-red-500 font-semibold"
+          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+          class="p-2 font-semibold rounded-md hover:text-white hover:bg-blue-400 transition"
+        >
+          {{ item.label }}
+        </a>
+        }
+      </nav>
+
+      <div class="hidden md:flex items-center gap-4 justify-self-end">
+        <span class="text-sm text-gray-700">Hi, {{ username }}</span>
+        <button
+          (click)="onLogout()"
+          class="text-red-500 text-sm hover:underline"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile layout header-->
+    <div class="md:hidden flex justify-between items-center">
+      <div class="text-xl font-bold text-red-600" routerLink="/">Inipod</div>
+      <button (click)="isOpen = !isOpen" class="text-gray-700">
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+
+    <div *ngIf="isOpen" class="md:hidden mt-2 px-2">
+      <div class="flex flex-col gap-2">
+        @for (item of menuItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          (click)="isOpen = false"
+          routerLinkActive="text-red-500 font-semibold"
+          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+          class="block px-4 py-2 rounded hover:bg-blue-100"
+        >
+          {{ item.label }}
+        </a>
+        }
+        <div class="mt-2 flex flex-col gap-1">
+          <span class="text-sm text-gray-700">Hi, {{ username }}</span>
+          <button
+            (click)="onLogout()"
+            class="text-red-500 text-sm hover:underline text-left"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 text-sm text-gray-600">
+    <div class="px-4 sm:px-6 mx-auto py-8">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-2">
+          <div class="text-xl font-bold text-red-600">Inipod</div>
+        </div>
+        <div class="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
+          @for (item of menuItems; track item.path) {
+          <a
+            [routerLink]="item.path"
+            class="hover:underline hover:text-red-500"
+            >{{ item.label }}</a
+          >
+          }
+        </div>
+      </div>
+
+      <div class="mt-6 text-center text-xs text-gray-500">
+        &copy; {{ currentYear }} Inipod Pokemon App. All rights reserved.
+      </div>
+    </div>
+  </footer>
+</div>

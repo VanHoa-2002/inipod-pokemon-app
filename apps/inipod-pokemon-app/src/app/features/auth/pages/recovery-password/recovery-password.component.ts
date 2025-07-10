@@ -1,9 +1,9 @@
-import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service';
+import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   standalone: true,
@@ -13,10 +13,13 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class RecoveryPasswordComponent {
   email = '';
-
   private auth = inject(AuthService);
-  private router = inject(Router);
   private toastr = inject(ToastrService);
+
+  /**
+   * Recovery password
+   * @returns - The message if success, error if failed
+   */
   onRecoveryPassword() {
     this.auth.recoveryPassword(this.email).subscribe({
       next: (res) => {

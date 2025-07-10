@@ -1,9 +1,10 @@
-import express from 'express';
 import * as path from 'path';
+import express from 'express';
 import mongoose from 'mongoose';
 import authRouter from './routes/auth.route';
 import pokemonRouter from './routes/pokemon.route';
 import cors from 'cors';
+import { authMiddleware } from './middlewares/auth.middleware';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -18,16 +19,10 @@ app.use(
 // Middleware
 app.use(express.json());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
-// Route test
-app.use('/api/', (req, res) => {
-  res.json({
-    message: 'Backend server is running successfully!',
-  });
-});
 // Route auth
 app.use('/api/auth', authRouter);
 // Route pokemon
-app.use('/api/pokemon', pokemonRouter);
+app.use('/api/pokemon', authMiddleware, pokemonRouter);
 
 mongoose
   .connect(mongoUri)

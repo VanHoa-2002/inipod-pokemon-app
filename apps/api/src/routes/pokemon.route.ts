@@ -10,7 +10,7 @@ const upload = multer({ dest: 'tmp/' });
 
 /**
  * @route POST /api/pokemon/import
- * @desc Import Pokémon data from CSV
+ * @desc Import Pokemon data from CSV
  */
 router.post('/import', upload.single('file'), async (req, res) => {
   if (!req.file) {
@@ -55,12 +55,12 @@ router.post('/import', upload.single('file'), async (req, res) => {
         if (newPokemons.length === 0) {
           return res
             .status(409)
-            .json({ message: 'All Pokémon in the file already exist.' });
+            .json({ message: 'All Pokemon in the file already exist.' });
         }
 
         await PokemonModel.insertMany(newPokemons);
         res.json({
-          message: `Imported successfully ${newPokemons.length} Pokémon(s).`,
+          message: `Imported successfully ${newPokemons.length} Pokemon(s).`,
           count: newPokemons.length,
           skipped: existingIds.length,
         });
@@ -76,7 +76,7 @@ router.post('/import', upload.single('file'), async (req, res) => {
 
 /**
  * @route GET /api/pokemon
- * @desc Get Pokémon list with filter, pagination
+ * @desc Get Pokemon list with filter, pagination
  */
 router.get('/', async (req, res) => {
   const {
@@ -90,10 +90,8 @@ router.get('/', async (req, res) => {
   } = req.query;
 
   const filter: any = {};
-
   const isValid = (value) =>
     value !== undefined && value !== null && value !== 'null';
-
   if (name) filter.name = { $regex: name, $options: 'i' };
   if (type) filter.$or = [{ type1: type }, { type2: type }];
   if (isLegendary === 'true') filter.isLegendary = true;
@@ -101,7 +99,6 @@ router.get('/', async (req, res) => {
     filter.speed = { ...(filter.speed || {}), $gte: Number(minSpeed) };
   if (isValid(maxSpeed))
     filter.speed = { ...(filter.speed || {}), $lte: Number(maxSpeed) };
-
   const pokemons = await PokemonModel.find(filter)
     .skip((+page - 1) * +limit)
     .limit(+limit);
@@ -110,9 +107,10 @@ router.get('/', async (req, res) => {
 
   res.json({ total, page: +page, limit: +limit, data: pokemons });
 });
+
 /**
  * @route GET /api/pokemon/types
- * @desc Get Pokémon types
+ * @desc Get Pokemon types
  */
 router.get('/types', async (req, res) => {
   const type1List = await PokemonModel.distinct('type1');
@@ -123,7 +121,7 @@ router.get('/types', async (req, res) => {
 
 /**
  * @route GET /api/pokemon/favorites
- * @desc Get Pokémon favorites
+ * @desc Get Pokemon favorites
  */
 router.get('/favorites', async (req, res) => {
   const { userId } = req.query;
@@ -138,7 +136,7 @@ router.get('/favorites', async (req, res) => {
 
 /**
  * @route POST /api/pokemon/favorites
- * @desc Add Pokémon to favorites
+ * @desc Add Pokemon to favorites
  */
 router.post('/favorites', async (req, res) => {
   const { userId, pokemonId } = req.body;
@@ -163,7 +161,7 @@ router.post('/favorites', async (req, res) => {
 
 /**
  * @route DELETE /api/pokemon/favorites
- * @desc Remove Pokémon from favorites
+ * @desc Remove Pokemon from favorites
  */
 router.delete('/favorites', async (req, res) => {
   const { userId, pokemonId } = req.body;
@@ -175,7 +173,7 @@ router.delete('/favorites', async (req, res) => {
 
 /**
  * @route GET /api/pokemon/:id
- * @desc Get detail of a Pokémon by id
+ * @desc Get detail of a Pokemon by id
  */
 router.get('/:id', async (req, res) => {
   const pokemon = await PokemonModel.findById(req.params.id);
