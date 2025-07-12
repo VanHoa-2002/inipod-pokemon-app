@@ -1,9 +1,9 @@
-import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service';
-import { ToastrService } from 'ngx-toastr';
+import { RouterModule } from '@angular/router';
+import { Store } from '@ngrx/store';
+import * as AuthActions from '../../../../core/store/auth/auth.action';
 
 @Component({
   standalone: true,
@@ -17,23 +17,19 @@ export class SignupComponent {
   confirmPassword = '';
   email = '';
 
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  private toastr = inject(ToastrService);
+  private store = inject(Store);
 
   /**
    * Signup a new user
    * @returns - The user object
    */
   onSignup() {
-    this.auth.signup(this.username, this.password, this.email).subscribe({
-      next: () => {
-        this.toastr.success('Signup successfully!', 'Success');
-        this.router.navigate(['/auth/login']);
-      },
-      error: (err) => {
-        this.toastr.error(err.error?.error || 'Signup failed', 'Error');
-      },
-    });
+    this.store.dispatch(
+      AuthActions.signup({
+        email: this.email,
+        password: this.password,
+        username: this.username,
+      })
+    );
   }
 }

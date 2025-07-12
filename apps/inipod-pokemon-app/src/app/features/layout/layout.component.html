@@ -23,7 +23,12 @@
       </nav>
 
       <div class="hidden md:flex items-center gap-4 justify-self-end">
-        <span class="text-sm text-gray-700">Hi, {{ username }}</span>
+        <span
+          *ngIf="username$ | async as user"
+          class="text-sm text-gray-700 truncate max-w-[150px]"
+          title="{{ user }}"
+          >Hi, {{ user }}</span
+        >
         <button
           (click)="onLogout()"
           class="text-red-500 text-sm hover:underline"
@@ -36,9 +41,10 @@
     <!-- Mobile layout header-->
     <div class="md:hidden flex justify-between items-center">
       <div class="text-xl font-bold text-red-600" routerLink="/">Inipod</div>
-      <button (click)="isOpen = !isOpen" class="text-gray-700">
+      <button (click)="toggleMenu()" class="p-2 focus:outline-none">
         <svg
-          class="w-6 h-6"
+          *ngIf="!isOpen"
+          class="w-6 h-6 transition-all duration-300 ease-in-out transform opacity-100 scale-100"
           fill="none"
           stroke="currentColor"
           stroke-width="2"
@@ -47,6 +53,18 @@
           stroke-linejoin="round"
         >
           <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <svg
+          *ngIf="isOpen"
+          class="w-6 h-6 transition-all duration-300 ease-in-out transform opacity-100 scale-100"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
     </div>
@@ -65,7 +83,12 @@
         </a>
         }
         <div class="mt-2 flex flex-col gap-1">
-          <span class="text-sm text-gray-700">Hi, {{ username }}</span>
+          <span
+            class="text-sm text-gray-700 truncate max-w-full"
+            *ngIf="username$ | async as user"
+            title="{{ user }}"
+            >Hi, {{ user }}</span
+          >
           <button
             (click)="onLogout()"
             class="text-red-500 text-sm hover:underline text-left"

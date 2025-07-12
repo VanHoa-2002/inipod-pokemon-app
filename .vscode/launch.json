@@ -2,14 +2,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "name": "Launch pokemon-backend",
       "request": "launch",
-      "name": "Debug NX Serve API",
-      "program": "${workspaceFolder}/node_modules/nx/bin/nx.js",
-      "args": ["serve", "api"],
-      "runtimeArgs": ["--inspect-brk"],
+      "type": "node",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "serve", "pokemon-backend"],
       "console": "integratedTerminal",
-      "skipFiles": ["<node_internals>/**"]
+      "cwd": "${workspaceFolder}/apps/pokemon-backend"
     }
   ]
 }

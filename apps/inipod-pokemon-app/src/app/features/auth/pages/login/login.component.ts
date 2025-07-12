@@ -1,9 +1,9 @@
-import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service';
-import { ToastrService } from 'ngx-toastr';
+import { RouterModule } from '@angular/router';
+import { Store } from '@ngrx/store';
+import * as AuthActions from '../../../../core/store/auth/auth.action';
 
 @Component({
   standalone: true,
@@ -15,26 +15,14 @@ export class LoginComponent {
   email = '';
   password = '';
 
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  private toastr = inject(ToastrService);
-
+  private store = inject(Store);
   /**
    * Login a user
    * @returns - The user object
    */
   onLogin() {
-    this.auth.login(this.email, this.password).subscribe({
-      next: (res) => {
-        localStorage.setItem('userId', res.userId);
-        localStorage.setItem('username', res.username);
-        localStorage.setItem('token', res.accessToken);
-        this.toastr.success('Login successfully', 'Success');
-        this.router.navigate(['/']);
-      },
-      error: (err) => {
-        this.toastr.error(err.error?.error || 'Login failed', 'Error');
-      },
-    });
+    this.store.dispatch(
+      AuthActions.login({ email: this.email, password: this.password })
+    );
   }
 }

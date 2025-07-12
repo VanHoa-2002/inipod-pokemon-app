@@ -5,6 +5,8 @@ import { PayloadFilter, Pokemon } from '../../../models/pokemon-list.model';
 import { PokemonService } from '../../../../core/services/pokemon.service';
 import { ToastrService } from 'ngx-toastr';
 import { CardItemComponent } from '../card-item/card-item.component';
+import { selectUser } from '../../../../core/store/auth/auth.selector';
+import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'app-home-page',
@@ -16,15 +18,19 @@ export class HomePageComponent implements OnInit {
   username = localStorage.getItem('username') || 'User';
   pokemons: Pokemon[] = [];
   loading = true;
-  favoriteIds: Set<string> = new Set();
-  userId = localStorage.getItem('userId') ?? '';
+  favoriteIds: Set<number> = new Set();
+  userId = '';
   private pokemonService = inject(PokemonService);
   private toastr = inject(ToastrService);
-
+  private store = inject(Store);
   /**
    * Initialize the component
    */
   ngOnInit(): void {
+    this.store.select(selectUser).subscribe((user) => {
+      this.userId = user?.userId || '';
+    });
+
     const payloadFilter: PayloadFilter = {
       page: 1,
       limit: 10,
@@ -60,7 +66,7 @@ export class HomePageComponent implements OnInit {
    * @param pokemon - The pokemon
    */
   toggleFavorite(pokemon: Pokemon) {
-    const id = pokemon._id;
+    const id = pokemon.id;
     if (this.favoriteIds.has(id)) {
       this.pokemonService.removeFavorite(this.userId, id).subscribe(() => {
         this.favoriteIds.delete(id);

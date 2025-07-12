@@ -3,10 +3,12 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { debounceTime, Observable, of, Subject, tap } from 'rxjs';
+import { debounceTime, map, Observable, of, Subject, tap } from 'rxjs';
 import { PokemonService } from '../../../../core/services/pokemon.service';
 import { PayloadFilter, Pokemon } from '../../../models/pokemon-list.model';
 import { CardItemComponent } from '../card-item/card-item.component';
+import { Store } from '@ngrx/store';
+import { selectUser } from '../../../../core/store/auth/auth.selector';
 
 @Component({
   selector: 'app-pokemon-list',
@@ -21,32 +23,37 @@ export class PokemonListComponent implements OnInit {
   payloadFilter: PayloadFilter = {
     name: '',
     type: '',
-    isLegendary: undefined,
+    isLegendary: false,
     minSpeed: 0,
     maxSpeed: 1000,
     page: 1,
     limit: 20,
   };
   totalItems = 0;
-  favoriteIds: Set<string> = new Set();
+  favoriteIds: Set<number> = new Set();
   pokemonTypes$: Observable<string[]> = of([]);
   private toastr = inject(ToastrService);
   private pokemonService = inject(PokemonService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private store = inject(Store);
   loading = false;
-  userId = localStorage.getItem('userId') ?? '';
+  userId = '';
   isFirstLoad = true;
 
   /**
    * Initialize the component
    */
   ngOnInit(): void {
+    this.store.select(selectUser).subscribe((user) => {
+      this.userId = user?.userId || '';
+    });
+
     this.route.queryParams.subscribe((params) => {
       this.payloadFilter = {
         name: params['name'] || '',
         type: params['type'] || '',
-        isLegendary: params['isLegendary'] === 'true' ? true : undefined,
+        isLegendary: params['isLegendary'] === 'true',
         minSpeed: Number(params['minSpeed']) || 0,
         maxSpeed: Number(params['maxSpeed']) || 1000,
         page: Number(params['page']) || 1,
@@ -181,9 +188,13 @@ export class PokemonListComponent implements OnInit {
       this.loading = true;
       this.toggleScrollbar(true);
       this.pokemonService.importCSV(file).subscribe({
-        next: () => {
-          this.loadPokemons();
-          this.toastr.success('CSV Import Success', 'Success');
+        next: (res) => {
+          if (res.hasChanged) {
+            this.loadPokemons();
+            this.toastr.success(res.message, 'Success');
+          } else {
+            this.toastr.info(`No new pokemons imported`, 'Information');
+          }
         },
         error: (err) => {
           input.value = '';

@@ -31,7 +31,9 @@ export class PokemonService {
     if (name) qb.andWhere('pokemon.name ILIKE :name', { name: `%${name}%` });
     if (type)
       qb.andWhere('(pokemon.type1 = :type OR pokemon.type2 = :type)', { type });
-    if (isLegendary === 'true') qb.andWhere('pokemon.isLegendary = true');
+    if (isLegendary === 'true') {
+      qb.andWhere('pokemon.isLegendary = true');
+    }
     if (minSpeed)
       qb.andWhere('pokemon.speed >= :minSpeed', { minSpeed: +minSpeed });
     if (maxSpeed)
@@ -55,14 +57,16 @@ export class PokemonService {
       .createQueryBuilder()
       .select('DISTINCT type1')
       .getRawMany();
+
     const type2 = await this.pokemonRepo
       .createQueryBuilder()
       .select('DISTINCT type2')
       .getRawMany();
-    const all = [
-      ...type1.map((t) => t.type1),
-      ...type2.map((t) => t.type2),
-    ].filter(Boolean);
+
+    const type1List = Array.isArray(type1) ? type1.map((t) => t.type1) : [];
+    const type2List = Array.isArray(type2) ? type2.map((t) => t.type2) : [];
+
+    const all = [...type1List, ...type2List].filter(Boolean);
     return Array.from(new Set(all)).sort();
   }
 
@@ -105,10 +109,15 @@ export class PokemonService {
       fs.createReadStream(file.path)
         .pipe(csv.default())
         .on('data', (data) => {
-          const key = Object.keys(data).find((k) => k.includes('id'));
-          const cleanedId = key ? data[key] : undefined;
+          const key = Object.keys(data).find((k) =>
+            k.toLowerCase().includes('id')
+          );
+          const cleanedId = key ? data[key]?.trim() : undefined;
+          const parsedId = Number(cleanedId);
+          if (!parsedId || isNaN(parsedId)) return; // skip invalid row
+
           results.push({
-            id: Number(cleanedId),
+            id: parsedId,
             name: data.name,
             type1: data.type1,
             type2: data.type2?.trim() || null,
@@ -120,18 +129,23 @@ export class PokemonService {
             spDef: Number(data.spDefense),
             speed: Number(data.speed),
             generation: Number(data.generation),
-            isLegendary: data.legendary === 'true',
+            isLegendary: data.legendary?.toLowerCase().trim() === 'true',
             image: data.image,
             ytbUrl: data.ytbUrl,
           });
         })
         .on('end', async () => {
           try {
+            const validResults = results.filter(
+              (r) => typeof r.id === 'number' && !isNaN(r.id)
+            );
             const existIds = await this.pokemonRepo.find({
-              where: { id: In(results.map((r) => r.id)) },
+              where: { id: In(validResults.map((r) => r.id)) },
             });
             const existIdSet = new Set(existIds.map((e) => e.id));
-            const insertList = results.filter((r) => !existIdSet.has(r.id));
+            const insertList = validResults.filter(
+              (r) => !existIdSet.has(r.id)
+            );
 
             if (insertList.length > 0) {
               const batchSize = 500;
@@ -145,6 +159,7 @@ export class PokemonService {
             resolve({
               message: `Imported ${insertList.length} Pokémon(s)`,
               skipped: existIds.length,
+              hasChanged: insertList.length > 0,
             });
           } catch (err) {
             reject(err);

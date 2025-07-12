@@ -22,7 +22,7 @@ import { SafeYoutubePipe } from '../../../utils/safe-youtube.pipe';
 })
 export class CardItemComponent implements OnInit, OnDestroy {
   @Input() pokemon!: Pokemon;
-  @Input() favoriteIds: Set<string> = new Set();
+  @Input() favoriteIds: Set<number> = new Set();
   @Output() toggleScrollbar = new EventEmitter<boolean>();
   @Input() userId = '';
   @Input() isAllowClickDetail = false;
@@ -40,8 +40,8 @@ export class CardItemComponent implements OnInit, OnDestroy {
         .getFavorites(this.userId)
         .pipe(
           map((res) => {
-            if (res?.data?.length > 0) {
-              this.favoriteIds = new Set(res.data.map((p) => p._id));
+            if (res?.length > 0) {
+              this.favoriteIds = new Set(res.map((p) => p.id));
             }
           })
         )
@@ -65,7 +65,7 @@ export class CardItemComponent implements OnInit, OnDestroy {
    */
   openModal(pokemon: Pokemon) {
     this.pokemonService
-      .getDetailPokemon(pokemon._id)
+      .getDetailPokemon(pokemon.id)
       .pipe(
         tap((res) => {
           this.selectedPokemon = res;
@@ -90,7 +90,7 @@ export class CardItemComponent implements OnInit, OnDestroy {
    * @param pokemon - The pokemon
    */
   toggleFavorite(pokemon: Pokemon) {
-    const id = pokemon._id;
+    const id = pokemon.id;
     if (this.favoriteIds.has(id)) {
       this.pokemonService.removeFavorite(this.userId, id).subscribe(() => {
         this.favoriteIds.delete(id);

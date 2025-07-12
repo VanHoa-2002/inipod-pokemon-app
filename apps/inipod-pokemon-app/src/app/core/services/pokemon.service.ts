@@ -27,10 +27,16 @@ export class PokemonService {
    * @param file - The CSV file
    * @returns - The message
    */
-  importCSV(file: File): Observable<any> {
+  importCSV(
+    file: File
+  ): Observable<{ message: string; skipped: number; hasChanged: boolean }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post('/api/pokemon/import', formData);
+    return this.http.post<{
+      message: string;
+      skipped: number;
+      hasChanged: boolean;
+    }>('/api/pokemon/import', formData);
   }
 
   /**
@@ -47,9 +53,7 @@ export class PokemonService {
    * @returns - The list of favorites
    */
   getFavorites(userId: string) {
-    return this.http.get<{ data: Pokemon[] }>(
-      `/api/pokemon/favorites?userId=${userId}`
-    );
+    return this.http.get<Pokemon[]>(`/api/pokemon/favorites?userId=${userId}`);
   }
 
   /**
@@ -57,7 +61,7 @@ export class PokemonService {
    * @param id - The id of the pokemon
    * @returns - The detail of the pokemon
    */
-  getDetailPokemon(id: string) {
+  getDetailPokemon(id: number) {
     return this.http.get<Pokemon>(`/api/pokemon/${id}`);
   }
 
@@ -67,7 +71,7 @@ export class PokemonService {
    * @param pokemonId - The pokemon id
    * @returns - The message
    */
-  addFavorite(userId: string, pokemonId: string) {
+  addFavorite(userId: string, pokemonId: number) {
     return this.http.post(`/api/pokemon/favorites`, { userId, pokemonId });
   }
 
@@ -77,7 +81,7 @@ export class PokemonService {
    * @param pokemonId - The pokemon id
    * @returns - The message
    */
-  removeFavorite(userId: string, pokemonId: string) {
+  removeFavorite(userId: string, pokemonId: number) {
     return this.http.delete(`/api/pokemon/favorites`, {
       body: { userId, pokemonId },
     });

@@ -1,12 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import {
-  Router,
-  RouterLink,
-  RouterLinkActive,
-  RouterOutlet,
-} from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { map } from 'rxjs';
+import * as AuthActions from '../../core/store/auth/auth.action';
+import { selectUser } from '../../core/store/auth/auth.selector';
 
 @Component({
   selector: 'app-layout',
@@ -15,11 +13,12 @@ import { ToastrService } from 'ngx-toastr';
   imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
 })
 export class LayoutComponent {
-  username = localStorage.getItem('username') || 'User';
+  private store = inject(Store);
+  username$ = this.store
+    .select(selectUser)
+    .pipe(map((user) => user?.username || 'User'));
   currentYear = new Date().getFullYear();
   isOpen = false;
-  private router = inject(Router);
-  private toastr = inject(ToastrService);
   menuItems = [
     { label: 'Home', path: '/', exact: true },
     { label: 'Pokemon List', path: '/pokemon' },
@@ -31,10 +30,10 @@ export class LayoutComponent {
    * Logout
    */
   onLogout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('userId');
-    this.router.navigate(['/auth/login']);
-    this.toastr.success('Logout successfully', 'Success');
+    this.store.dispatch(AuthActions.logout());
+  }
+
+  toggleMenu() {
+    this.isOpen = !this.isOpen;
   }
 }

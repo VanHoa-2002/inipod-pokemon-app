@@ -4,20 +4,31 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PokemonModule } from './pokemon/pokemon.module';
 import { DataSource } from 'typeorm';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: '123123',
-      database: 'pokemon_db',
-      autoLoadEntities: true,
-      synchronize: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres',
+        host: config.get<string>('DB_HOST'),
+        port: parseInt(config.get<string>('DB_PORT')),
+        username: config.get<string>('DB_USERNAME'),
+        password: config.get<string>('DB_PASSWORD'),
+        database: config.get<string>('DB_DATABASE'),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
     }),
     PokemonModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -25,12 +36,15 @@ import { DataSource } from 'typeorm';
 export class AppModule {
   constructor(private dataSource: DataSource) {}
 
+  /**
+   * Check if the database is connected
+   */
   async onModuleInit() {
     try {
-      await this.dataSource.query('SELECT NOW()'); // câu truy vấn test
-      console.log('✅ Connected to PostgreSQL successfully');
+      await this.dataSource.query('SELECT NOW()');
+      console.log('Connected to PostgreSQL successfully');
     } catch (error) {
-      console.error('❌ Failed to connect to PostgreSQL:', error);
+      console.error('Failed to connect to PostgreSQL:', error);
     }
   }
 }
