@@ -21,11 +21,26 @@ export class DocumentaryComponent {
       label: 'Run frontend dev server',
       cmd: 'npx nx serve inipod-pokemon-app',
     },
-    { label: 'Run backend', cmd: 'npx nx serve api' },
-    { label: 'Build frontend', cmd: 'npx nx build inipod-pokemon-app' },
-    { label: 'Build backend', cmd: 'npx nx build api' },
-    { label: 'Show backend targets', cmd: 'npx nx show project api' },
-    { label: 'Show graph project dependencies', cmd: 'npx nx graph' },
+    {
+      label: 'Run backend (NestJS)',
+      cmd: 'npx nx serve pokemon-backend',
+    },
+    {
+      label: 'Build frontend',
+      cmd: 'npx nx build inipod-pokemon-app',
+    },
+    {
+      label: 'Build backend',
+      cmd: 'npx nx build pokemon-backend',
+    },
+    {
+      label: 'Show backend targets',
+      cmd: 'npx nx show project pokemon-backend',
+    },
+    {
+      label: 'Show graph project dependencies',
+      cmd: 'npx nx graph',
+    },
   ];
 
   generateCommands = [
@@ -38,122 +53,135 @@ export class DocumentaryComponent {
   featuresApp = [
     {
       label: 'Home Page',
-      desc: 'Display a carousel of 4 Pokemon videos from the database and show the top 10 Pokemon from the first query.',
+      desc: 'Display a carousel of 4 Pokémon videos and show top 10 Pokémon from the backend.',
     },
     {
       label: 'Pokemon List Page',
-      desc: 'Display all Pokemon with search, filter, and pagination. Also, display the favorite Pokemon. The user can import a CSV file to add Pokemon to the database(if it is not in the database).',
+      desc: 'Show all Pokémon with filter, search, pagination. Supports CSV import.',
     },
     {
       label: 'Pokemon Detail Page',
-      desc: 'Display Pokemon details with video and information.',
+      desc: 'Show full Pokémon detail with stats and video.',
     },
     {
       label: 'Login Page',
-      desc: 'Display the login form. Using for user login.',
+      desc: 'Form to login using email and password.',
     },
     {
       label: 'Signup Page',
-      desc: 'Display the registration form. Using for user registration.',
+      desc: 'Form to register a new account.',
     },
     {
       label: 'Recover Password Page',
-      desc: 'Display the recover password form. Using for user recover password.',
+      desc: 'Form to trigger password recovery API.',
     },
     {
       label: 'Documentary Page',
-      desc: 'Display the documentary page. Using for user see the documentary of the app.',
+      desc: 'Shows setup, features, and API documentation.',
     },
     {
       label: 'Policy Page',
-      desc: 'Display the policy page. Using for user see the policy of the app.',
+      desc: 'App usage policy display.',
     },
   ];
 
   authApi = [
     { endpoint: '/api/auth/login', method: 'POST', desc: 'User login' },
-    { endpoint: '/api/auth/signup', method: 'POST', desc: 'User registration' },
     {
-      endpoint: '/api/auth/recovery-password',
+      endpoint: '/api/auth/register',
       method: 'POST',
-      desc: 'User recover password',
+      desc: 'User registration',
+    },
+    {
+      endpoint: '/api/auth/recovery',
+      method: 'POST',
+      desc: 'Password recovery (send email/token)',
     },
   ];
+
+  pokemonApi = [
+    {
+      endpoint: '/api/pokemon',
+      method: 'GET',
+      desc: 'Get all Pokémon (paginated)',
+    },
+    { endpoint: '/api/pokemon/:id', method: 'GET', desc: 'Get Pokémon by ID' },
+    {
+      endpoint: '/api/pokemon/import',
+      method: 'POST',
+      desc: 'Import Pokémon data from CSV',
+    },
+    {
+      endpoint: '/api/pokemon/types',
+      method: 'GET',
+      desc: 'Get all Pokémon types',
+    },
+    {
+      endpoint: '/api/pokemon/favorites',
+      method: 'POST',
+      desc: 'Add Pokémon to favorites',
+    },
+    {
+      endpoint: '/api/pokemon/favorites',
+      method: 'GET',
+      desc: "Get user's favorite Pokémon",
+    },
+    {
+      endpoint: '/api/pokemon/favorites/:id',
+      method: 'DELETE',
+      desc: 'Remove Pokémon from favorites',
+    },
+  ];
+
   techFeatures = [
     {
       title: 'Authentication & Security',
       items: [
-        'JWT (JSON Web Token) – used for frontend/backend authentication',
-        'Token Expiry Testing – configure short expiry for session testing',
-        'AuthGuard (Angular) – protect routes from unauthenticated access',
-        'HTTP Interceptor – auto-attach token to Authorization headers',
+        'JWT authentication using NestJS',
+        'Email + password based login',
+        'Token expiry and secure hash with Bcrypt',
+        'Angular HttpInterceptor auto-attaches token',
+        'AuthGuard for protected routes',
+        'Recovery password API endpoint',
       ],
     },
     {
-      title: 'Frontend – Angular',
+      title: 'Frontend – Angular 17',
       items: [
-        'Standalone Components – simplified Angular structure without modules',
-        'TailwindCSS – fast and responsive utility-first styling',
-        'RouterLink + routerLinkActive – routing and active menu highlight',
-        'Responsive Navbar – mobile toggle with *ngIf and toggle variable',
-        'NgFor + TrackBy – efficient list rendering in templates',
+        'Standalone components with modern structure',
+        'TailwindCSS for styling',
+        'NgRx for state management (Auth done, Pokémon WIP)',
+        'Responsive layout using Grid & Flexbox',
+        'RouterLink, routerLinkActive, route guards',
       ],
     },
     {
-      title: 'Backend – Express + MongoDB',
+      title: 'Backend – NestJS + PostgreSQL',
       items: [
-        'Express Router – separate route groups for auth and Pokemon',
-        'JWT Middleware – verify token for protected API access',
-        'Mongoose Models – define MongoDB schemas cleanly',
-        'Custom Endpoints – /with-videos and /top Pokemon APIs',
+        'NestJS framework with TypeORM',
+        'PostgreSQL as the relational DB',
+        'DTO + ValidationPipe for clean input validation',
+        'Repository pattern for clean code structure',
+        'Async/await, DI, modular service/controller structure',
       ],
     },
     {
       title: 'Debug & Dev Tools',
       items: [
-        'Nx Monorepo – manage frontend and backend in a unified workspace',
-        'Nx Graph – visualize project structure (`npx nx graph`)',
-        'Nx Console – VSCode plugin for code generation and task running',
-        'Environment Config (.env) – manage secrets like JWT and Mongo URI',
+        'Nx Monorepo – unified management of FE + BE',
+        'Nx Graph for dependency visualization',
+        'Nx Console (VSCode) for code generation',
+        '.env config for DB + secrets',
       ],
     },
     {
       title: 'Project Structure',
       items: [
-        'apps/ – contains separate frontend and backend projects',
-        'routes/, models/ – cleanly organized Express logic',
-        'Reusable components for layout, footer, policy, documentary, etc.',
+        'apps/inipod-pokemon-app – Angular frontend',
+        'apps/pokemon-backend – NestJS backend',
+        'libs/ – for potential shared logic',
+        'Fully modular Angular app with lazy routes',
       ],
-    },
-  ];
-
-  pokemonApi = [
-    { endpoint: '/api/pokemon', method: 'GET', desc: 'Get all Pokemon' },
-    { endpoint: '/api/pokemon/:id', method: 'GET', desc: 'Get Pokemon by ID' },
-    {
-      endpoint: '/api/pokemon/import',
-      method: 'POST',
-      desc: 'Import Pokemon data from CSV',
-    },
-    {
-      endpoint: '/api/pokemon/types',
-      method: 'GET',
-      desc: 'Get Pokemon types',
-    },
-    {
-      endpoint: '/api/pokemon/favorites',
-      method: 'POST',
-      desc: 'Add Pokemon to favorites',
-    },
-    {
-      endpoint: '/api/pokemon/favorites',
-      method: 'GET',
-      desc: 'Get user favorites',
-    },
-    {
-      endpoint: '/api/pokemon/favorites/:id',
-      method: 'DELETE',
-      desc: 'Remove Pokemon from favorites',
     },
   ];
 
@@ -163,16 +191,24 @@ export class DocumentaryComponent {
       link: 'https://angular.dev/guide/standalone-components',
     },
     {
-      label: 'ExpressJS (Node.js)',
-      link: 'https://expressjs.com/',
+      label: 'NestJS',
+      link: 'https://nestjs.com/',
     },
     {
-      label: 'MongoDB',
-      link: 'https://www.mongodb.com/',
+      label: 'PostgreSQL',
+      link: 'https://www.postgresql.org/',
+    },
+    {
+      label: 'TypeORM',
+      link: 'https://typeorm.io/',
     },
     {
       label: 'TailwindCSS',
       link: 'https://tailwindcss.com/',
+    },
+    {
+      label: 'NgRx',
+      link: 'https://ngrx.io/',
     },
     {
       label: 'Nx Monorepo',

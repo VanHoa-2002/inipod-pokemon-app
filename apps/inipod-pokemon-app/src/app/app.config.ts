@@ -14,9 +14,13 @@ import {
 } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
+import { provideEffects } from '@ngrx/effects';
+import { provideStore } from '@ngrx/store';
 import { provideToastr } from 'ngx-toastr';
 import { appRoutes } from './app.routes';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { AuthEffects } from './core/store/auth/auth.effects';
+import { authReducer } from './core/store/auth/auth.reducer';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -37,5 +41,7 @@ export const appConfig: ApplicationConfig = {
       timeOut: 2000,
     }),
     provideAnimations(),
+    provideStore({ auth: authReducer }),
+    provideEffects([AuthEffects]),
   ],
 };

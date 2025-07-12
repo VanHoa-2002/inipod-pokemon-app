@@ -13,13 +13,15 @@ export class AuthService {
    */
   login(email: string, password: string) {
     return this.http
-      .post<{ accessToken: string; userId: string; username: string }>(
-        '/api/auth/login',
-        {
-          email,
-          password,
-        }
-      )
+      .post<{
+        accessToken: string;
+        userId: string;
+        username: string;
+        email: string;
+      }>('/api/auth/login', {
+        email,
+        password,
+      })
       .pipe(
         tap((res) => {
           if (typeof window !== 'undefined') {
@@ -36,11 +38,16 @@ export class AuthService {
    * @param email - The email of the user
    * @returns - The user object
    */
-  signup(username: string, password: string, email: string) {
-    return this.http.post('/api/auth/signup', {
-      username,
-      password,
+  signup(email: string, password: string, username: string) {
+    return this.http.post<{
+      accessToken: string;
+      userId: string;
+      username: string;
+      email: string;
+    }>('/api/auth/register', {
       email,
+      password,
+      username,
     });
   }
 
@@ -50,34 +57,8 @@ export class AuthService {
    * @returns - The message
    */
   recoveryPassword(email: string) {
-    return this.http.post<{ message: string }>('/api/auth/recovery-password', {
+    return this.http.post<{ message: string }>('/api/auth/recovery', {
       email,
     });
-  }
-
-  /**
-   * Logout a user
-   */
-  logout() {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-    }
-  }
-
-  /**
-   * Get the token of the user
-   * @returns - The token of the user
-   */
-  getToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('token');
-  }
-
-  /**
-   * Check if the user is logged in
-   * @returns - True if the user is logged in, false otherwise
-   */
-  isLoggedIn(): boolean {
-    return !!this.getToken();
   }
 }
